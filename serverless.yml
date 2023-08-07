@@ -24,7 +24,7 @@ package:
 
 custom:
   currenciesTableName: currencies
-  userTableName: users
+  userTableName: user
 
 functions:
   getCurrencies:
@@ -39,6 +39,13 @@ functions:
     events:
       - http:
           path: registration
+          method: POST
+          cors: true
+  loginUser:
+    handler: src/endpoints/login/handler.handler
+    events:
+      - http:
+          path: login
           method: POST
           cors: true
   exchangeCurrencies:
@@ -67,9 +74,9 @@ resources:
       Properties:
         TableName: ${self:custom.userTableName}
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: email
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: email
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
