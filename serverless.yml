@@ -1,0 +1,75 @@
+service: aws-currency-exchange
+
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: serverlessUser
+  region: eu-west-2
+  environment:
+    currenciesTableName: ${self:custom.currenciesTableName}
+    userTableName: ${self:custom.userTableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: '*'
+
+plugins:
+  - serverless-plugin-typescript
+
+package:
+  individually: true
+
+custom:
+  currenciesTableName: currencies
+  userTableName: users
+
+functions:
+  getCurrencies:
+    handler: src/endpoints/currencies/handler.handler
+    events:
+      - http:
+          path: currencies
+          method: GET
+          cors: true
+  addUser:
+    handler: src/endpoints/registration/handler.handler
+    events:
+      - http:
+          path: registration
+          method: POST
+          cors: true
+  exchangeCurrencies:
+    handler: src/endpoints/exchange/handler.handler
+    events:
+      - http:
+          path: exchange
+          method: POST
+          cors: true
+
+resources:
+  Resources:
+    CurrencyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.currenciesTableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.userTableName}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
