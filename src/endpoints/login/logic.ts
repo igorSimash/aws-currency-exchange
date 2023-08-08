@@ -1,4 +1,5 @@
 import * as AWS from 'aws-sdk';
+import {CustomError} from "../../helpers/responses/CustomError";
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
 // import jwt from 'jsonwebtoken'
@@ -17,13 +18,18 @@ export const loginUser = async (email: string, password: string) => {
     }
 
     const userResult = await dynamodb.query(queryParams).promise();
-    if (!userResult[0]) return null;
+    if (!userResult.Items[0])
+        throw new CustomError(401, 'User is not registered');
 
-    const compareResult = bcrypt.compareSync(password, userResult.Items[0].password)
-    if (compareResult) {
-        return jwt.sign({
-            email: 'asd'
-        }, 'SECRETTTTTTTTTTTTTTTTTTTT')
+    const comparePass = bcrypt.compareSync(password, userResult.Items[0].password);
+    if (!comparePass) {
+        throw new CustomError(403, 'Incorrect password');
     }
-    return null;
+    const token = jwt.sign({
+        email: userResult.Items[0].email
+    }, 'SECRETTTTTTTTTTTTTTTTTTTT');
+
+    if (!token)
+        throw new CustomError(500, 'Error during signing token');
+    return token;
 }

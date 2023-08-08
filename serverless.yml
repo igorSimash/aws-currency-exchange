@@ -27,6 +27,8 @@ custom:
   userTableName: user
 
 functions:
+  verify-token:
+    handler: src/endpoints/userAuthorizer/handler.handler
   getCurrencies:
     handler: src/endpoints/currencies/handler.handler
     events:
@@ -55,7 +57,10 @@ functions:
           path: exchange
           method: POST
           cors: true
-
+          authorizer:
+            name: verify-token
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 3600
 resources:
   Resources:
     CurrencyTable:
