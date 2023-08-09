@@ -2,10 +2,9 @@ import * as AWS from 'aws-sdk';
 import {CustomError} from "../../helpers/responses/CustomError";
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
-// import jwt from 'jsonwebtoken'
 const dynamodb = new AWS.DynamoDB.DocumentClient()
 
-export const loginUser = async (email: string, password: string) => {
+export const loginUser = async (email: string, password: string): Promise<string> => {
     const queryParams = {
         TableName: process.env.userTableName as string,
         KeyConditionExpression: '#email = :email',

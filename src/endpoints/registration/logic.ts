@@ -6,8 +6,6 @@ import {CustomError} from "../../helpers/responses/CustomError";
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 export const AddUser = async (email: string, password: string) => {
-    const id = uuid();
-
     const queryParams = {
         TableName: process.env.userTableName as string,
         KeyConditionExpression: '#email = :email',
@@ -24,6 +22,7 @@ export const AddUser = async (email: string, password: string) => {
     if (userResult.Items && userResult.Items.length)
         throw new CustomError(409, 'The user is already registered');
 
+    const id = uuid();
     const params = {
         TableName: process.env.userTableName as string,
         Item: {
@@ -33,7 +32,7 @@ export const AddUser = async (email: string, password: string) => {
         }
     }
 
-    const newUser = dynamodb.put(params).promise();
+    const newUser = await dynamodb.put(params).promise();
 
     if (!newUser) {
         throw new CustomError(500, 'There was an error inserting new user');

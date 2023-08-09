@@ -2,11 +2,12 @@ import {getCurrencies} from "./logic";
 import {Response} from "../../helpers/responses/APIResponses";
 
 export const handler = async event => {
-    const currencies = await getCurrencies();
 
-    if (!currencies) {
-        return Response(400, { message: 'Failed to get currencies' });
+    try {
+        const currencies = await getCurrencies();
+        return Response(200, { currencies });
     }
-
-    return Response(200, { currencies });
+    catch (err) {
+        return Response(err.code, err.message);
+    }
 }

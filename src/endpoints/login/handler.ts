@@ -7,7 +7,7 @@ export const handler = async (event) => {
         return Response(400, {message: "No email or password in body"});
     try {
         const token = await loginUser(body.email, body.password);
-        return Response(200, {token, event: event});
+        return Response(200, {token});
     }
     catch (err) {
         return Response(err.code, err.message);
